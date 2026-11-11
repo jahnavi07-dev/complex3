@@ -16,20 +16,20 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                bat 'py -m pip install -r requirements.txt'
+                bat 'python -m pip install -r requirements.txt'
             }
         }
 
         stage('Compilation') {
             steps {
-                bat 'py -m compileall -q app.py test_app.py'
+                bat 'python -m compileall -q app.py test_app.py'
                 echo 'Compilation successful'
             }
         }
 
         stage('Testing') {
             steps {
-                bat 'py -m pytest -v'
+                bat 'python -m pytest -v'
                 echo 'Testing completed'
             }
         }
@@ -37,7 +37,7 @@ pipeline {
         stage('Packaging') {
             steps {
                 bat 'if not exist dist mkdir dist'
-                bat 'py -c "import zipfile; z=zipfile.ZipFile(\'dist/python-app.zip\', \'w\'); z.write(\'app.py\'); z.write(\'requirements.txt\'); z.close()"'
+                bat 'python -c "import zipfile; z=zipfile.ZipFile(\'dist/python-app.zip\', \'w\'); z.write(\'app.py\'); z.write(\'requirements.txt\'); z.close()"'
                 archiveArtifacts artifacts: 'dist/*.zip'
                 echo 'Application packaged successfully'
             }
