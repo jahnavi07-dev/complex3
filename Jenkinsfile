@@ -1,5 +1,10 @@
+
 pipeline {
     agent any
+
+    environment {
+        PYTHON = 'C:/Users/unars/AppData/Local/Programs/Python/Python312/python.exe'
+    }
 
     triggers {
         pollSCM('H/2 * * * *')
@@ -9,36 +14,36 @@ pipeline {
 
         stage('Source Code Checkout') {
             steps {
-                checkout scm
                 echo 'Source code downloaded from GitHub'
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                bat 'python -m pip install -r requirements.txt'
+                bat '"%PYTHON%" -m pip install -r requirements.txt'
             }
         }
 
         stage('Compilation') {
             steps {
-                bat 'python -m compileall -q app.py test_app.py'
+                bat '"%PYTHON%" -m compileall -q app.py test_app.py'
                 echo 'Compilation successful'
             }
         }
 
         stage('Testing') {
             steps {
-                bat 'python -m pytest -v'
-                echo 'Testing completed'
+                bat '"%PYTHON%" -m pytest -v'
+                echo 'Testing completed successfully'
             }
         }
 
         stage('Packaging') {
             steps {
-                bat 'if not exist dist mkdir dist'
-                bat 'python -c "import zipfile; z=zipfile.ZipFile(\'dist/python-app.zip\', \'w\'); z.write(\'app.py\'); z.write(\'requirements.txt\'); z.close()"'
+                bat 'powershell -NoProfile -Command "if (!(Test-Path dist)) { New-Item -ItemType Directory dist }; Compress-Archive -Path app.py,requirements.txt -DestinationPath dist/python-app.zip -Force"'
+
                 archiveArtifacts artifacts: 'dist/*.zip'
+
                 echo 'Application packaged successfully'
             }
         }
